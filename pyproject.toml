@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rag-mcp-server"
+version = "0.1.0"
+description = "基于 MCP（Model Context Protocol）的独立 RAG 检索增强服务"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "rag-mcp-server" },
+]
+keywords = ["mcp", "rag", "chromadb", "embeddings", "llm"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+# 核心运行时依赖（PEP 621：必须为字符串数组）
+dependencies = [
+    # MCP 官方 Python SDK 2.x（FastMCP 已更名为 MCPServer）；[cli] 附带调试命令
+    "mcp[cli]>=2.0",
+    # 向量数据库（本地持久化）
+    "chromadb>=0.5.0",
+    # 配置与数据模型
+    "pydantic>=2.7",
+    "pydantic-settings>=2.2",
+    # OpenAI 兼容接口（LLM / Embedding 调用）
+    "openai>=1.30",
+    "httpx>=0.27",
+    # 环境变量加载
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# 文档加载器所需的可选解析库，按需安装：pip install -e ".[loaders]"
+loaders = [
+    "pypdf>=4.0",          # PDF 解析
+    "python-docx>=1.1",    # Word .docx 解析
+    "beautifulsoup4>=4.12",# HTML 解析
+    "markdownify>=0.13",   # HTML → Markdown
+]
+# 开发与测试依赖：pip install -e ".[dev]"
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+# 命令行入口（src/rag_mcp_server/server/__init__.py 中的 main 待实现）
+rag-mcp-server = "rag_mcp_server.server:main"
+
+[project.urls]
+"Homepage" = "https://github.com/your-org/rag-mcp-server"
+
+# ===== setuptools：src 布局包发现 =====
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+rag_mcp_server = ["prompts/**/*"]
+
+# ===== Ruff：代码检查与格式化 =====
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+# ===== mypy：静态类型检查 =====
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+
+# ===== pytest =====
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

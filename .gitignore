@@ -1,0 +1,82 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+eggs/
+.eggs/
+sdist/
+wheels/
+pip-wheel-metadata/
+
+# ===== 虚拟环境 =====
+.venv/
+venv/
+env/
+ENV/
+
+# ===== 环境变量 / 密钥 =====
+.env
+.env.*
+!.env.example
+
+# ===== 测试 / 类型检查 / 代码检查 =====
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== IDE / 编辑器 =====
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ===== 操作系统 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 日志（保留目录，忽略内容） =====
+logs/*
+!logs/.gitkeep
+
+# ===== RAG 运行时数据（保留目录，忽略内容） =====
+# 原始上传文档
+data/raw/*
+!data/raw/.gitkeep
+# 清洗 / 分块中间产物
+data/processed/*
+!data/processed/.gitkeep
+# Chroma 本地持久化向量库
+data/chroma_db/*
+!data/chroma_db/.gitkeep
+
+# ===== 模型 / Embedding 权重与缓存 =====
+models/
+checkpoints/
+*.bin
+*.gguf
+*.onnx
+*.safetensors
+.huggingface/
+.cache/
+
+# ===== MCP 本地运行配置 =====
+.mcp.json
+*.local.json
+
+# ===== 其他 =====
+issue-log.md
