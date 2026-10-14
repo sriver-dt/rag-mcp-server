@@ -65,7 +65,7 @@ rag-mcp-server = "rag_mcp_server.server:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-rag_mcp_server = ["prompts/**/*"]
+rag_mcp_server = ["prompts/**/*", "py.typed"]
 
 # ===== Ruff：代码检查与格式化 =====
 [tool.ruff]

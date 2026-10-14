@@ -132,11 +132,17 @@ python scripts/manage_index.py add data\raw --no-recursive
 
 # 查看向量库索引（来源列表、各来源分块数、最近索引时间、完整路径）
 python scripts/manage_index.py list
+
+# 删除指定来源的全部向量（可一次传多个 source_id，来源不存在时跳过并报错）
+python scripts/manage_index.py delete <source_id> [source_id ...]
+
+# 清空向量库全部数据（默认交互确认，-y 跳过确认）
+python scripts/manage_index.py clear [-y]
 ```
 
 说明：
 
-- `add` 需要 `EMBEDDING_API_KEY`，未配置时报明确的配置错误；`list` 不依赖任何 Key，随时可用
+- `add` 需要 `EMBEDDING_API_KEY`，未配置时报明确的配置错误；`list` / `delete` / `clear` 不依赖任何 Key，随时可用
 - `add` 幂等：重复索引同一路径会自动覆盖旧索引，无需先删除
 - 目录批量索引逐文件容错，单文件失败不中断，结尾输出成功/失败/跳过汇总
 
