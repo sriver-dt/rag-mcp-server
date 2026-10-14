@@ -78,5 +78,8 @@ checkpoints/
 .mcp.json
 *.local.json
 
+# ===== test =====
+tests/
+
 # ===== 其他 =====
 issue-log.md

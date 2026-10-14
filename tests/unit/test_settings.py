@@ -49,6 +49,16 @@ def test_non_positive_dim_rejected() -> None:
         Settings(embedding_dim=0, embedding_api_key="", llm_api_key="")
 
 
+def test_embedding_batch_size_default_and_validation() -> None:
+    # 默认 20（对齐 DashScope 系列模型的服务端上限）
+    settings = Settings(embedding_api_key="", llm_api_key="")
+    assert settings.embedding_batch_size == 20
+    with pytest.raises(ConfigError, match="EMBEDDING_BATCH_SIZE"):
+        Settings(embedding_batch_size=0, embedding_api_key="", llm_api_key="")
+    with pytest.raises(ConfigError, match="EMBEDDING_BATCH_SIZE"):
+        Settings(embedding_batch_size=-5, embedding_api_key="", llm_api_key="")
+
+
 def test_non_positive_chunk_size_rejected() -> None:
     with pytest.raises(ConfigError, match="CHUNK_SIZE"):
         Settings(chunk_size=0, embedding_api_key="", llm_api_key="")

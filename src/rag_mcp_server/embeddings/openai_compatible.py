@@ -1,10 +1,11 @@
 """OpenAI 兼容的 Embedding 实现。
 
 支持任何兼容 ``/v1/embeddings`` 接口的服务（OpenAI、各厂商代理、
-本地 vLLM/ollama 网关等），通过配置 EMBEDDING_BASE_URL / EMBEDDING_API_KEY / 
-EMBEDDING_MODEL / EMBEDDING_DIM 控制。
+本地 vLLM/ollama 网关等），通过配置 EMBEDDING_BASE_URL / EMBEDDING_API_KEY /
+EMBEDDING_MODEL / EMBEDDING_DIM / EMBEDDING_BATCH_SIZE 控制。
 
-- 自动分批请求（默认每批 64 条），避免超长输入触发接口限制
+- 自动分批请求（每批条数由 EMBEDDING_BATCH_SIZE 控制，默认 20），
+  避免超过服务端的单请求输入上限（如 DashScope 系列模型限 20 条）
 - 严格校验返回向量数量与维度，异常统一包装为 EmbeddingError
 """
 
@@ -15,19 +16,16 @@ from openai import OpenAI
 from rag_mcp_server.common.exceptions import EmbeddingError
 from rag_mcp_server.config.settings import Settings
 
-# 每次请求的最大输入条数（多数兼容接口的安全上限）
-DEFAULT_BATCH_SIZE = 64
-
 
 class OpenAICompatibleEmbedder:
     """基于 openai SDK 的 Embedding 客户端（同步调用）。"""
 
-    def __init__(self, settings: Settings, batch_size: int = DEFAULT_BATCH_SIZE) -> None:
+    def __init__(self, settings: Settings) -> None:
         """初始化客户端。
 
         Args:
-            settings: 全局配置（读取 EMBEDDING_* 字段）。
-            batch_size: 单次请求的最大输入条数。
+            settings: 全局配置（读取 EMBEDDING_* 字段，单批条数取
+                ``EMBEDDING_BATCH_SIZE``，已由聚合校验保证为正整数）。
 
         Raises:
             EmbeddingError: 未配置 API Key。
@@ -38,7 +36,7 @@ class OpenAICompatibleEmbedder:
             )
         self._model = settings.embedding_model
         self._expected_dim = settings.embedding_dim
-        self._batch_size = max(1, batch_size)
+        self._batch_size = settings.embedding_batch_size
         self._client = OpenAI(
             api_key=settings.embedding_api_key,
             base_url=settings.embedding_base_url,

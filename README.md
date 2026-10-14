@@ -21,7 +21,7 @@
 rag-mcp-server/
 ├── pyproject.toml                 # 项目元数据与依赖（src 布局；pytest/ruff/mypy 配置）
 ├── requirements.txt               # 与 pyproject 保持一致的依赖清单
-├── .env.example                   # 环境变量模板（23 个键）
+├── .env.example                   # 环境变量模板（24 个键）
 ├── issue-log.md                   # 阶段审查记录
 ├── README.md                      # 项目说明文档（本文件）
 │
@@ -51,7 +51,7 @@ rag-mcp-server/
 │   │                              #   chroma_store/pipeline/retriever/prompts/tools
 │   └── integration/               # 集成测试：全链路 + stdio 子进程冒烟
 │
-├── scripts/                       # 运维脚本（预留）
+├── scripts/                       # 运维脚本：manage_index.py（命令行索引 / 查看索引）
 ├── docs/                          # 项目文档（预留）
 └── logs/                          # 运行日志（不入库，10MB 轮转 × 5 备份）
 ```
@@ -118,6 +118,27 @@ MCP 客户端接入示例（如 IDE 的 MCP 配置）：
 | `ask_knowledge(question, top_k?)` | RAG 问答：检索 → prompt → LLM 生成带 `[n](文件名)` 引用的回答 | retriever + LLM |
 | `list_sources()` | 列出已索引来源（source_id/文件名/分块数/时间） | vectorstore |
 | `delete_source(source_id)` | 删除指定来源的全部向量 | vectorstore |
+
+## 命令行运维脚本
+
+不依赖 MCP 客户端，直接在命令行索引文档或查看向量库状态。脚本与 MCP 服务读取同一份 `.env` 配置，无需额外配置（需在项目虚拟环境激活后运行）：
+
+```powershell
+# 索引单个文件或目录（目录默认递归子目录，自动按扩展名过滤）
+python scripts/manage_index.py add <文件或目录路径>
+
+# 目录索引时不递归子目录
+python scripts/manage_index.py add data\raw --no-recursive
+
+# 查看向量库索引（来源列表、各来源分块数、最近索引时间、完整路径）
+python scripts/manage_index.py list
+```
+
+说明：
+
+- `add` 需要 `EMBEDDING_API_KEY`，未配置时报明确的配置错误；`list` 不依赖任何 Key，随时可用
+- `add` 幂等：重复索引同一路径会自动覆盖旧索引，无需先删除
+- 目录批量索引逐文件容错，单文件失败不中断，结尾输出成功/失败/跳过汇总
 
 ## 降级语义（无 Key 也可用）
 

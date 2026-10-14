@@ -1,9 +1,9 @@
 """全局配置：基于 pydantic-settings，从项目根目录的 .env 读取。
 
-字段与 .env.example 中的 23 个环境变量一一对应：
+字段与 .env.example 中的 24 个环境变量一一对应：
 - MCP_*：服务与传输（4 个）
 - LLM_*：答案生成模型（5 个）
-- EMBEDDING_*：向量化模型（4 个）
+- EMBEDDING_*：向量化模型（5 个）
 - CHROMA_*：向量库（2 个）
 - CHUNK_* / DATA_*：文档处理（4 个）
 - RETRIEVAL_*：检索（3 个）
@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     embedding_base_url: str = "https://api.openai.com/v1"
     embedding_model: str = "text-embedding-3-small"
     embedding_dim: int = 1536
+    # 单次 embedding 请求的最大输入条数，需不超过服务端限制
+    # （如 DashScope 系列模型限 20，OpenAI text-embedding 系列限 2048）
+    embedding_batch_size: int = 20
 
     # ---------- Chroma ----------
     chroma_persist_dir: str = "data/chroma_db"
@@ -90,6 +93,10 @@ class Settings(BaseSettings):
             )
         if self.embedding_dim <= 0:
             errors.append(f"EMBEDDING_DIM 必须为正整数，当前为 {self.embedding_dim}")
+        if self.embedding_batch_size <= 0:
+            errors.append(
+                f"EMBEDDING_BATCH_SIZE 必须为正整数，当前为 {self.embedding_batch_size}"
+            )
         if self.retrieval_top_k <= 0:
             errors.append(
                 f"RETRIEVAL_TOP_K 必须为正整数，当前为 {self.retrieval_top_k}")
